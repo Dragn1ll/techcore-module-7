@@ -49,7 +49,13 @@ public sealed class BookService : IBookService
         try
         {
             var key = $"book:{bookId}";
-            var book = JsonSerializer.Deserialize<Book>(await _cache.GetStringAsync(key) ?? string.Empty);
+            
+            var cachedData = await _cache.GetAsync(key);
+            Book? book = null;
+            if (cachedData is { Length: > 0 })
+            {
+                book = JsonSerializer.Deserialize<Book>(cachedData);
+            }
 
             if (book == null)
             {
@@ -57,7 +63,7 @@ public sealed class BookService : IBookService
 
                 if (book == null)
                 {
-                    throw new ArgumentException("Книга не найденаю.");
+                    throw new ArgumentException("Книга не найдена.");
                 }
                 
                 await _cache.SetStringAsync(key, JsonSerializer.Serialize(book));
