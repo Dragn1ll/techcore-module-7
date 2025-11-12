@@ -2,37 +2,37 @@ using Library.Data.PostgreSql;
 using Library.Web;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Library.IntegrationTests;
 
-public class MyTestFactory : WebApplicationFactory<Program>
+public sealed class MyTestFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureServices(services =>
+        builder.UseEnvironment("Testing");
+
+        builder.ConfigureTestServices(services =>
         {
-            var descriptors = services.Where(
-                    d => d.ServiceType == typeof(DbContextOptions<BookContext>) ||
-                         d.ServiceType == typeof(BookContext))
-                .ToList();
+            services.RemoveAll<DbContextOptions<BookContext>>();
+            services.RemoveAll<IDbContextOptionsConfiguration<BookContext>>();
+            services.RemoveAll<BookContext>();
 
-            foreach (var descriptor in descriptors)
-            {
-                services.Remove(descriptor);
-            }
+            services.RemoveAll<DbContextOptions<IdentityContext>>();
+            services.RemoveAll<IDbContextOptionsConfiguration<IdentityContext>>();
+            services.RemoveAll<IdentityContext>();
 
-            services.AddDbContext<BookContext>(options =>
-            {
-                options.UseInMemoryDatabase("TestDB");
-            });
+            services.AddDbContext<BookContext>(o => o.UseInMemoryDatabase("TestBookDb"));
+            services.AddDbContext<IdentityContext>(o => o.UseInMemoryDatabase("TestIdentityDb"));
 
             var sp = services.BuildServiceProvider();
-
             using var scope = sp.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<BookContext>();
-            db.Database.EnsureCreated();
+            scope.ServiceProvider.GetRequiredService<BookContext>().Database.EnsureCreated();
+            scope.ServiceProvider.GetRequiredService<IdentityContext>().Database.EnsureCreated();
         });
     }
 }

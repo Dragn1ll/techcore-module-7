@@ -9,7 +9,6 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace Library.Web.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/books")]
 public sealed class BookController : Controller
@@ -42,7 +41,8 @@ public sealed class BookController : Controller
             ? Ok(result.Value!.Select(gbd => gbd.ToGetBookResponse()).ToList()) 
             : Problem(result.Error!.Message, statusCode: (int)result.Error.ErrorType);
     }
-
+    
+    [Authorize]
     [HttpGet("{id:guid}")]
     [OutputCache(PolicyName = "BookPolicy")]
     public async Task<ActionResult> GetBook([FromRoute] Guid id)
@@ -60,7 +60,8 @@ public sealed class BookController : Controller
             return Problem(detail: ex.Message, statusCode: 500);
         }
     }
-
+    
+    [Authorize]
     [HttpPut("{id:guid}")]
     public async Task<ActionResult> UpdateBook([FromRoute] Guid id, [FromBody] UpdateBookRequest request)
     {
@@ -71,6 +72,7 @@ public sealed class BookController : Controller
             : Problem(result.Error!.Message, statusCode: (int)result.Error.ErrorType);
     }
 
+    [Authorize]
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> DeleteBook([FromRoute] Guid id)
@@ -82,6 +84,7 @@ public sealed class BookController : Controller
             : Problem(result.Error!.Message, statusCode: (int)result.Error.ErrorType);
     }
     
+    [Authorize]
     [HttpGet("{id}/details")]
     public async Task<ActionResult<BookDetailsResponse>> GetBookDetails(Guid id)
     {
@@ -106,6 +109,7 @@ public sealed class BookController : Controller
         return Ok(details);
     }
     
+    [Authorize]
     [Authorize(Policy = "OlderThan18")]
     [HttpGet("18+")]
     public IActionResult GetRestrictedContent()
