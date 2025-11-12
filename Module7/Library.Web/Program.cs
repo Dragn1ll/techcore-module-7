@@ -136,6 +136,8 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
+app.MapGet("/api/hello", () => "Hello World!");
+
 app.Use(async (context, next) =>
 {
     var startTime = DateTime.UtcNow;

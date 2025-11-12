@@ -7,6 +7,10 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\Library.Contracts\Library.Contracts.csproj" />
       <ProjectReference Include="..\Library.Data.PostgreSql\Library.Data.PostgreSql.csproj" />
