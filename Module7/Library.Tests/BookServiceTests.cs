@@ -52,4 +52,32 @@ public class BookServiceTests
         Assert.Equal(bookId, result.Value.Id);
         Assert.Equal("Test Book", result.Value.Title);
     }
+    
+    
+    
+    [Fact]
+    public async Task DeleteBook_CallsRepositoryDeleteAndCacheRemove()
+    {
+        // Arrange
+        var bookId = Guid.NewGuid();
+        var book = new Book { Id = bookId, Title = "Test Book" };
+
+        _repoMock.Setup(r => r.GetByIdAsync(bookId))
+            .ReturnsAsync(book);
+
+        _repoMock.Setup(r => r.DeleteAsync(bookId))
+            .Returns(Task.CompletedTask);
+
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), CancellationToken.None))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _service.DeleteBook(bookId);
+
+        // Assert
+        Assert.True(result.IsSuccess);
+
+        _repoMock.Verify(r => r.DeleteAsync(bookId), Times.Once);
+        _cacheMock.Verify(c => c.RemoveAsync($"book:{bookId}", CancellationToken.None), Times.Once);
+    }
 }
