@@ -1,5 +1,6 @@
 using Library.Data.PostgreSql;
 using Library.Web;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -33,6 +34,13 @@ public sealed class MyTestFactory : WebApplicationFactory<Program>
             using var scope = sp.CreateScope();
             scope.ServiceProvider.GetRequiredService<BookContext>().Database.EnsureCreated();
             scope.ServiceProvider.GetRequiredService<IdentityContext>().Database.EnsureCreated();
+            
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthHandler.Scheme;
+                    options.DefaultChallengeScheme = TestAuthHandler.Scheme;
+                })
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.Scheme, _ => { });
         });
     }
 }

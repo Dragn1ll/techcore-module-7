@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Library.Contracts.Books.Request;
@@ -55,5 +56,19 @@ public class BookControllerIntegrationTests : IClassFixture<MyTestFactory>
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+    
+    [Fact]
+    public async Task Get_WithToken_Returns20Ok()
+    {
+        // Arrange
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", "fake-test-token");
+        
+        // Act
+        var response = await _client.GetAsync("/api/books");
+        
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 }
