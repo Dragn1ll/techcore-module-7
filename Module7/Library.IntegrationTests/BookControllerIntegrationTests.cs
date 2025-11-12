@@ -46,4 +46,14 @@ public class BookControllerIntegrationTests : IClassFixture<MyTestFactory>
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+    
+    [Fact]
+    public async Task Get_WithoutToken_Returns401()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/books");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 }

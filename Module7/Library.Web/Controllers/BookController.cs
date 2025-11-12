@@ -31,7 +31,8 @@ public sealed class BookController : Controller
             ? Ok(new CreateBookResponse(result.Value)) 
             : Problem(result.Error!.Message, statusCode: (int)result.Error.ErrorType);
     }
-
+    
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult> GetBooks()
     {
